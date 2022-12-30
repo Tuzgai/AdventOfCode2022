@@ -14,7 +14,7 @@ fun day22ASolution(): Int {
     val maxSize = map.maxOf { it.size }
     map.forEach { t ->
         repeat(maxSize - t.size) {
-            t.add('-')
+            t.add(' ')
         }
     }
 
@@ -35,13 +35,11 @@ fun day22ASolution(): Int {
         else -> throw IllegalStateException()
     }
 
-    printGrid(map)
-
     return (1000 * agent.coordinate.y) + (4 * agent.coordinate.x) + facingScore
 }
 
 fun day22BSolution(): Int {
-    val input = File("src/main/resources/Day22Test.txt").readText().split("\n\n")
+    val input = File("src/main/resources/Day22Data.txt").readText().split("\n\n")
 
     val distances = input[1].split(Pattern.compile("[LR]"))
     val directions = input[1].split(Pattern.compile("\\d*")).filter { it != "" }
@@ -53,7 +51,7 @@ fun day22BSolution(): Int {
     val maxSize = map.maxOf { it.size }
     map.forEach { t ->
         repeat(maxSize - t.size) {
-            t.add('-')
+            t.add(' ')
         }
     }
 
@@ -74,8 +72,6 @@ fun day22BSolution(): Int {
         else -> throw IllegalStateException()
     }
 
-    printGrid(map)
-
     return (1000 * agent.coordinate.y) + (4 * agent.coordinate.x) + facingScore
 }
 
@@ -95,7 +91,7 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
     )
 
     fun moveAndTurn(distanceAndDirection: Pair<String, Char>, map: List<MutableList<Char>>) {
-        this.move(distanceAndDirection.first.toInt(), map)
+        this.gridMove(distanceAndDirection.first.toInt(), map)
         this.turn(distanceAndDirection.second, map)
     }
 
@@ -116,14 +112,51 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
                         isNavigable(map[new.y][new.x]) -> {
                             Coordinate(new.x, new.y)
                         }
+
                         map[new.y][new.x] == '#' -> {
                             break
                         }
+
                         else -> {
-                            TODO()
+                            when (getCurrentFace(coordinate)) {
+                                'B' -> {
+                                    // Now on right side of E
+                                    val newFace = Coordinate(100, (51-coordinate.y) + 100)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = '<'
+                                    newFace
+                                }
+
+                                'C' -> {
+                                    // Now on bottom of B
+                                    val newFace = Coordinate(coordinate.y-50+100, 50)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = '^'
+                                    newFace
+                                }
+
+                                'E' -> {
+                                    // Now on right side of B
+                                    val newFace = Coordinate(150, 51-(coordinate.y - 100))
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = '<'
+                                    newFace
+                                }
+
+                                'F' -> {
+                                    // Now on bottom of E
+                                    val newFace = Coordinate(coordinate.y - 150 + 50, 150)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = '^'
+                                    newFace
+                                }
+
+                                else -> throw IllegalStateException()
+                            }
                         }
                     }
                 }
+
                 '<' -> {
                     val new = Coordinate(coordinate.x - 1, coordinate.y)
 
@@ -131,15 +164,52 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
                         isNavigable(map[new.y][new.x]) -> {
                             Coordinate(new.x, new.y)
                         }
+
                         map[new.y][new.x] == '#' -> {
                             break
                         }
+
                         else -> {
-                            TODO()
+                            when (getCurrentFace(coordinate)) {
+                                'A' -> {
+                                    // Now on left side of D
+                                    val newFace = Coordinate(1, (51-coordinate.y) + 100)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = '>'
+                                    newFace
+                                }
+
+                                'C' -> {
+                                    // Now on top side of D
+                                    val newFace = Coordinate(coordinate.y - 50, 101)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = 'v'
+                                    newFace
+                                }
+
+                                'D' -> {
+                                    // Now on left side of A
+                                    val newFace = Coordinate(51, 51-(coordinate.y - 100))
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = '>'
+                                    newFace
+                                }
+
+                                'F' -> {
+                                    // Now on top side of A
+                                    val newFace = Coordinate(coordinate.y - 150 + 50, 1)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = 'v'
+                                    newFace
+                                }
+
+                                else -> throw IllegalStateException()
+                            }
                         }
                     }
 
                 }
+
                 'v' -> {
                     val new = Coordinate(coordinate.x, coordinate.y + 1)
 
@@ -147,15 +217,44 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
                         isNavigable(map[new.y][new.x]) -> {
                             Coordinate(new.x, new.y)
                         }
+
                         map[new.y][new.x] == '#' -> {
                             break
                         }
+
                         else -> {
-                            TODO()
+                            when (getCurrentFace(coordinate)) {
+                                'F' -> {
+                                    // Now on top side of B
+                                    val newFace = Coordinate(coordinate.x + 100, 1)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = 'v'
+                                    newFace
+                                }
+
+                                'E' -> {
+                                    // Now on right side of F
+                                    val newFace = Coordinate(50, coordinate.x - 50 + 150)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = '<'
+                                    newFace
+                                }
+
+                                'B' -> {
+                                    // Now on right side of C
+                                    val newFace = Coordinate(100, coordinate.x - 100 + 50)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = '<'
+                                    newFace
+                                }
+
+                                else -> throw IllegalStateException()
+                            }
                         }
                     }
 
                 }
+
                 '^' -> {
                     val new = Coordinate(coordinate.x, coordinate.y - 1)
 
@@ -163,11 +262,39 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
                         isNavigable(map[new.y][new.x]) -> {
                             Coordinate(new.x, new.y)
                         }
+
                         map[new.y][new.x] == '#' -> {
                             break
                         }
+
                         else -> {
-                            TODO()
+                            when (getCurrentFace(coordinate)) {
+                                'D' -> {
+                                    // Now on left side of C
+                                    val newFace = Coordinate(51, coordinate.x + 50)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = '>'
+                                    newFace
+                                }
+
+                                'A' -> {
+                                    // Now on left side of F
+                                    val newFace = Coordinate(1, coordinate.x - 50 + 150)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = '>'
+                                    newFace
+                                }
+
+                                'B' -> {
+                                    // Now on bottom side of F
+                                    val newFace = Coordinate(coordinate.x - 100, 200)
+                                    if (map[newFace.y][newFace.x] == '#') break
+                                    facing = '^'
+                                    newFace
+                                }
+
+                                else -> throw IllegalStateException()
+                            }
                         }
                     }
 
@@ -177,7 +304,7 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
     }
 
 
-    private fun move(distance: Int, map: List<MutableList<Char>>) {
+    private fun gridMove(distance: Int, map: List<MutableList<Char>>) {
         for (i in 0 until distance) {
             map[coordinate.y][coordinate.x] = facing
 
@@ -189,9 +316,11 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
                         isNavigable(map[new.y][new.x]) -> {
                             Coordinate(new.x, new.y)
                         }
+
                         map[new.y][new.x] == '#' -> {
                             break
                         }
+
                         else -> {
                             val rotatedCoord = map[new.y].indexOfFirst { isNavigable(it) || it == '#' }
                             if (map[new.y][rotatedCoord] == '#') break
@@ -199,6 +328,7 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
                         }
                     }
                 }
+
                 '<' -> {
                     val new = Coordinate(coordinate.x - 1, coordinate.y)
 
@@ -206,9 +336,11 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
                         isNavigable(map[new.y][new.x]) -> {
                             Coordinate(new.x, new.y)
                         }
+
                         map[new.y][new.x] == '#' -> {
                             break
                         }
+
                         else -> {
                             val rotatedCoord = map[new.y].indexOfLast { isNavigable(it) || it == '#' }
                             if (map[new.y][rotatedCoord] == '#') break
@@ -217,6 +349,7 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
                     }
 
                 }
+
                 'v' -> {
                     val new = Coordinate(coordinate.x, coordinate.y + 1)
 
@@ -224,9 +357,11 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
                         isNavigable(map[new.y][new.x]) -> {
                             Coordinate(new.x, new.y)
                         }
+
                         map[new.y][new.x] == '#' -> {
                             break
                         }
+
                         else -> {
                             val rotatedCoord = findSpaceFromTop(map, new.x)
                             if (map[rotatedCoord][new.x] == '#') break
@@ -235,6 +370,7 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
                     }
 
                 }
+
                 '^' -> {
                     val new = Coordinate(coordinate.x, coordinate.y - 1)
 
@@ -242,9 +378,11 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
                         isNavigable(map[new.y][new.x]) -> {
                             Coordinate(new.x, new.y)
                         }
+
                         map[new.y][new.x] == '#' -> {
                             break
                         }
+
                         else -> {
                             val rotatedCoord = findSpaceFromBottom(map, new.x)
                             if (map[rotatedCoord][new.x] == '#') break
@@ -286,6 +424,18 @@ class Agent(var coordinate: Coordinate, var facing: Char) {
 
         throw IllegalStateException()
     }
-}
 
-fun doNothing() {}
+    private fun getCurrentFace(coordinate: Coordinate): Char {
+        with(coordinate) {
+            return when {
+                x in 51..100 && y in 1..50 -> 'A'
+                x in 101..150 && y in 1..50 -> 'B'
+                x in 51..100 && y in 51..100 -> 'C'
+                x in 51..100 && y in 101..150 -> 'E'
+                x in 1..50 && y in 101..150 -> 'D'
+                x in 1..50 && y in 151..200 -> 'F'
+                else -> throw IllegalStateException()
+            }
+        }
+    }
+}
